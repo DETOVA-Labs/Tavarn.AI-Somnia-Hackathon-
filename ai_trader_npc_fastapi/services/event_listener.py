@@ -83,8 +83,8 @@ async def start_event_listener():
     item_bought_filter = contract.events.ItemBought.create_filter(from_block='latest')
     item_sold_filter = contract.events.ItemSold.create_filter(from_block='latest')
 
-    # Start polling loops for each event
-    # await asyncio.gather(
-    #     log_loop(item_bought_filter, 2, handle_event),
-    #     log_loop(item_sold_filter, 2, handle_event)
-    # )
+    #Start polling loops for each event
+    await asyncio.gather(
+        log_loop(item_bought_filter, 2, handle_event),
+        log_loop(item_sold_filter, 2, handle_event)
+    )
