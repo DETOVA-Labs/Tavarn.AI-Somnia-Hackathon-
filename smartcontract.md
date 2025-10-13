@@ -113,5 +113,3 @@ forge inspect AITrader abi > abi/AITrader.json
 ---
 
 
-Built with ❤️ by Musa
-Somnia 2025 — Let the AI trade begin.
