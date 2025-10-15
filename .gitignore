@@ -13,3 +13,4 @@ docs/
 # Dotenv file
 .env
 PRODUCT.md
+ai_trader_npc_fastapi/GEMINI.md
