@@ -15,6 +15,7 @@ export default function Navigation() {
   const [cartDrawerOpen, setCartDrawerOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const [walletConnected, setWalletConnected] = useState(false)
+  const [walletAddress, setWalletAddress] = useState('')
 
   useEffect(() => {
     // Check cart count
@@ -24,6 +25,7 @@ export default function Navigation() {
     // Check wallet connection
     const wallet = localStorage.getItem('wallet_address')
     setWalletConnected(!!wallet)
+    setWalletAddress(wallet || '')
 
     // Listen for storage changes
     const handleStorage = () => {
@@ -31,15 +33,25 @@ export default function Navigation() {
       setCartCount(cart.length)
       const wallet = localStorage.getItem('wallet_address')
       setWalletConnected(!!wallet)
+      setWalletAddress(wallet || '')
+    }
+
+    // Listen for wallet updates
+    const handleWalletUpdate = () => {
+      const wallet = localStorage.getItem('wallet_address')
+      setWalletConnected(!!wallet)
+      setWalletAddress(wallet || '')
     }
 
     window.addEventListener('storage', handleStorage)
     // Custom event for same-tab updates
     window.addEventListener('cartUpdated', handleStorage)
-    
+    window.addEventListener('walletUpdated', handleWalletUpdate)
+
     return () => {
       window.removeEventListener('storage', handleStorage)
       window.removeEventListener('cartUpdated', handleStorage)
+      window.removeEventListener('walletUpdated', handleWalletUpdate)
     }
   }, [])
 
@@ -80,9 +92,17 @@ export default function Navigation() {
           
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            {walletConnected && walletAddress && (
+              <div className="flex items-center space-x-2 px-3 py-1 glass-effect rounded-lg border border-primary/30">
+                <Wallet className="h-4 w-4 text-primary" />
+                <span className="text-sm font-mono text-primary">
+                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                </span>
+              </div>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
               className="relative"
               onClick={() => setCartDrawerOpen(true)}
             >
@@ -93,16 +113,16 @@ export default function Navigation() {
                 </span>
               )}
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="neon-border text-sm lg:text-base"
               onClick={() => setWalletDialogOpen(true)}
             >
               <Wallet className="h-4 w-4 mr-2" />
               {walletConnected ? 'Connected' : 'Connect Wallet'}
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => setProfileDialogOpen(true)}
             >

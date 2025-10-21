@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,22 +17,48 @@ export default function WalletConnectDialog({ open, onOpenChange }: WalletConnec
   const [walletAddress, setWalletAddress] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    // Check if user is logged in (client-side only)
+    setIsLoggedIn(!!localStorage.getItem('user'))
+  }, [])
+
+  const isValidEthereumAddress = (address: string) => {
+    return /^0x[a-fA-F0-9]{40}$/.test(address)
+  }
 
   const handleConnect = async () => {
-    if (!walletAddress || walletAddress.length < 42) {
-      toast.error('Please enter a valid wallet address')
+    if (!isLoggedIn) {
+      toast.error('Please create an account first before connecting a wallet')
+      return
+    }
+
+    if (!walletAddress || !isValidEthereumAddress(walletAddress)) {
+      toast.error('Please enter a valid Ethereum wallet address (42 characters, starting with 0x)')
       return
     }
 
     setIsConnecting(true)
-    
+
     // Simulate connection
     setTimeout(() => {
       setIsConnecting(false)
       setIsConnected(true)
       localStorage.setItem('wallet_address', walletAddress)
+
+      // Add to connected wallets list
+      const connectedWallets = JSON.parse(localStorage.getItem('connected_wallets') || '[]')
+      if (!connectedWallets.includes(walletAddress)) {
+        connectedWallets.push(walletAddress)
+        localStorage.setItem('connected_wallets', JSON.stringify(connectedWallets))
+      }
+
+      // Dispatch custom event to update Navigation
+      window.dispatchEvent(new Event('walletUpdated'))
+
       toast.success('Wallet connected successfully!')
-      
+
       setTimeout(() => {
         onOpenChange(false)
         setIsConnected(false)
@@ -42,6 +68,11 @@ export default function WalletConnectDialog({ open, onOpenChange }: WalletConnec
   }
 
   const handleMetaMaskConnect = async () => {
+    if (!isLoggedIn) {
+      toast.error('Please create an account first before connecting a wallet')
+      return
+    }
+
     if (typeof window.ethereum !== 'undefined') {
       try {
         setIsConnecting(true)
@@ -49,9 +80,20 @@ export default function WalletConnectDialog({ open, onOpenChange }: WalletConnec
         if (accounts[0]) {
           setWalletAddress(accounts[0])
           localStorage.setItem('wallet_address', accounts[0])
+
+          // Add to connected wallets list
+          const connectedWallets = JSON.parse(localStorage.getItem('connected_wallets') || '[]')
+          if (!connectedWallets.includes(accounts[0])) {
+            connectedWallets.push(accounts[0])
+            localStorage.setItem('connected_wallets', JSON.stringify(connectedWallets))
+          }
+
+          // Dispatch custom event to update Navigation
+          window.dispatchEvent(new Event('walletUpdated'))
+
           setIsConnected(true)
           toast.success('Wallet connected via MetaMask!')
-          
+
           setTimeout(() => {
             onOpenChange(false)
             setIsConnected(false)

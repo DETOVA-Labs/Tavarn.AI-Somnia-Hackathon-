@@ -69,6 +69,9 @@ export default function ProfileDialog({ open, onOpenChange }) {
 
   if (isLoggedIn) {
     const user = JSON.parse(localStorage.getItem('user') || '{}')
+    const connectedWallets = JSON.parse(localStorage.getItem('connected_wallets') || '[]')
+    const currentWallet = localStorage.getItem('wallet_address')
+
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md glass-effect border-primary/20">
@@ -80,7 +83,7 @@ export default function ProfileDialog({ open, onOpenChange }) {
               Manage your account and settings
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 mt-4">
             <div className="p-4 glass-effect rounded-lg">
               <div className="flex items-center space-x-3">
@@ -94,15 +97,98 @@ export default function ProfileDialog({ open, onOpenChange }) {
               </div>
             </div>
 
+            {/* Connected Wallets Section */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
+                Connected Wallets
+              </h3>
+              {connectedWallets.length > 0 ? (
+                <div className="space-y-2">
+                  {connectedWallets.map((wallet, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 glass-effect rounded-lg border ${
+                        wallet === currentWallet ? 'border-primary' : 'border-primary/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                            <User className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-mono">
+                              {wallet.slice(0, 6)}...{wallet.slice(-4)}
+                            </div>
+                            {wallet === currentWallet && (
+                              <div className="text-xs text-primary">Currently Active</div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              localStorage.setItem('wallet_address', wallet)
+                              window.dispatchEvent(new Event('walletUpdated'))
+                              toast.success('Switched to wallet: ' + wallet.slice(0, 6) + '...' + wallet.slice(-4))
+                            }}
+                            disabled={wallet === currentWallet}
+                            className="text-xs"
+                          >
+                            {wallet === currentWallet ? 'Active' : 'Switch'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const newAddress = prompt('Enter new wallet address:', wallet)
+                              if (newAddress && newAddress !== wallet) {
+                                // Validate new address
+                                if (!/^0x[a-fA-F0-9]{40}$/.test(newAddress)) {
+                                  toast.error('Invalid Ethereum address format')
+                                  return
+                                }
+
+                                // Update in connected wallets array
+                                const updatedWallets = connectedWallets.map(w => w === wallet ? newAddress : w)
+                                localStorage.setItem('connected_wallets', JSON.stringify(updatedWallets))
+
+                                // Update current wallet if it was the one being edited
+                                if (wallet === currentWallet) {
+                                  localStorage.setItem('wallet_address', newAddress)
+                                }
+
+                                window.dispatchEvent(new Event('walletUpdated'))
+                                toast.success('Wallet address updated successfully')
+                              }
+                            }}
+                            className="text-xs text-muted-foreground hover:text-primary"
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 glass-effect rounded-lg border border-dashed border-primary/30 text-center">
+                  <p className="text-sm text-muted-foreground">No wallets connected yet</p>
+                </div>
+              )}
+            </div>
+
             <Link href="/dashboard">
               <Button className="w-full neon-border" onClick={() => onOpenChange(false)}>
                 Go to Dashboard
               </Button>
             </Link>
 
-            <Button 
+            <Button
               onClick={handleLogout}
-              variant="outline" 
+              variant="outline"
               className="w-full neon-border"
             >
               Logout
