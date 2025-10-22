@@ -13,13 +13,23 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import BubbleAnimation from '@/components/BubbleAnimation'
 
-const allAssets = [
+interface Asset {
+  id: number
+  name: string
+  type: string
+  price: string
+  image: string
+  rarity: string
+  game: string
+}
+
+const allAssets: Asset[] = [
   {
     id: 1,
     name: "Cyber Katana X-7",
     type: "Weapon",
     price: "2.5 STT",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=800&h=600&fit=crop",
+    image: "/katana.png",
     rarity: "Legendary",
     game: "CyberStrike",
   },
@@ -28,7 +38,7 @@ const allAssets = [
     name: "Neon Dragon Skin",
     type: "Skin",
     price: "1.8 STT",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop",
+    image: "/neon dragon skin.jpeg",
     rarity: "Epic",
     game: "DragonVerse",
   },
@@ -37,7 +47,7 @@ const allAssets = [
     name: "Quantum Armor Set",
     type: "Armor",
     price: "3.2 STT",
-    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&h=600&fit=crop",
+    image: "/quantum armor suit.jpg",
     rarity: "Legendary",
     game: "QuantumWarriors",
   },
@@ -46,7 +56,7 @@ const allAssets = [
     name: "Plasma Blaster Pro",
     type: "Weapon",
     price: "1.5 STT",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop",
+    image: "/Plasma Blaster Pro.jpeg",
     rarity: "Rare",
     game: "SpaceRaiders",
   },
@@ -55,7 +65,7 @@ const allAssets = [
     name: "Holographic Phoenix",
     type: "NFT",
     price: "4.0 STT",
-    image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&h=600&fit=crop",
+    image: "/Holographic Phoenix.jpeg",
     rarity: "Mythic",
     game: "MetaRealms",
   },
@@ -64,7 +74,7 @@ const allAssets = [
     name: "Stealth Assassin Gear",
     type: "Outfit",
     price: "2.0 STT",
-    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&h=600&fit=crop",
+    image: "/Stealth Assassin Gear.jpeg",
     rarity: "Epic",
     game: "ShadowOps",
   },
@@ -73,7 +83,7 @@ const allAssets = [
     name: "Lightning Strike Bow",
     type: "Weapon",
     price: "1.2 STT",
-    image: "https://images.unsplash.com/photo-1509396591411-549f5662ff5b?w=800&h=600&fit=crop",
+    image: "/Lightning Strike Bow.jpeg",
     rarity: "Rare",
     game: "ArcherLegends",
   },
@@ -82,7 +92,7 @@ const allAssets = [
     name: "Cosmic Wings",
     type: "Accessory",
     price: "2.8 STT",
-    image: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600&fit=crop",
+    image: "/Cosmic Wings.jpeg",
     rarity: "Epic",
     game: "SkyRealm",
   },
@@ -91,13 +101,13 @@ const allAssets = [
     name: "Inferno Blade",
     type: "Weapon",
     price: "3.5 STT",
-    image: "https://images.unsplash.com/photo-1588117305388-c2631a279f82?w=800&h=600&fit=crop",
+    image: "/inferno blade.jpeg",
     rarity: "Legendary",
     game: "FireWarriors",
   },
 ]
 
-const getRarityColor = (rarity) => {
+const getRarityColor = (rarity: string) => {
   switch (rarity) {
     case "Mythic":
       return "bg-gradient-to-r from-purple-500 to-pink-500"
@@ -118,22 +128,22 @@ export default function MarketplacePage() {
   const [selectedRarity, setSelectedRarity] = useState("all")
   const [sortBy, setSortBy] = useState("featured")
 
-  const addToCart = (asset) => {
+  const addToCart = (asset: Asset) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-    
+
     // Check if item already in cart
-    const existingItem = cart.find(item => item.id === asset.id)
+    const existingItem = cart.find((item: Asset) => item.id === asset.id)
     if (existingItem) {
       toast.info('Item already in cart!')
       return
     }
-    
+
     cart.push(asset)
     localStorage.setItem('cart', JSON.stringify(cart))
-    
+
     // Dispatch custom event for cart update
     window.dispatchEvent(new Event('cartUpdated'))
-    
+
     toast.success(`${asset.name} added to cart!`)
   }
 

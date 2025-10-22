@@ -5,6 +5,9 @@ import { Toaster } from 'sonner'
 export const metadata: Metadata = {
   title: 'Tavarn.AI',
   description: 'AI Trading Platform',
+  icons: {
+    icon: '/tavarnai-favicon-logo.png',
+  },
 }
 
 export default function RootLayout({

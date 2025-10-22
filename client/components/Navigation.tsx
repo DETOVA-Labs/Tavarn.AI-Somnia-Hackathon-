@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag, User, Wallet, Menu, X } from 'lucide-react'
+import { ShoppingBag, User, Wallet, Menu, X, Home } from 'lucide-react'
 import WalletConnectDialog from './WalletConnectDialog'
 import ProfileDialog from './ProfileDialog'
 import CartDrawer from './CartDrawer'
@@ -59,19 +60,14 @@ export default function Navigation() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-primary/20">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
-              <span className="text-xl font-bold">T</span>
-            </div>
-            <span 
-              className="text-xl md:text-2xl font-bold" 
-              style={{ 
-                fontFamily: 'Rajdhani, sans-serif',
-                textShadow: '0 0 3px var(--neon-cyan), 0 0 6px var(--neon-cyan)'
-              }}
-            >
-              TAVARN.AI
-            </span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/tavarnai-logo.png"
+              alt="Tavarn.AI Logo"
+              width={200}
+              height={64}
+              className="w-24 h-9 sm:w-32 sm:h-12 md:w-40 md:h-14 lg:w-48 lg:h-16 xl:w-56 xl:h-18"
+            />
           </Link>
           
           {/* Desktop Menu */}
@@ -92,6 +88,15 @@ export default function Navigation() {
           
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-3 lg:space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+            >
+              <Link href="/">
+                <Home className="h-5 w-5" />
+              </Link>
+            </Button>
             {walletConnected && walletAddress && (
               <div className="flex items-center space-x-2 px-3 py-1 glass-effect rounded-lg border border-primary/30">
                 <Wallet className="h-4 w-4 text-primary" />
@@ -132,9 +137,18 @@ export default function Navigation() {
 
           {/* Mobile Actions */}
           <div className="flex md:hidden items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
+              asChild
+            >
+              <Link href="/">
+                <Home className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               className="relative"
               onClick={() => setCartDrawerOpen(true)}
             >
@@ -145,15 +159,15 @@ export default function Navigation() {
                 </span>
               )}
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => setProfileDialogOpen(true)}
             >
               <User className="h-5 w-5" />
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >

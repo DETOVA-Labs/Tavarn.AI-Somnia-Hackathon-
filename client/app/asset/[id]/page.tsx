@@ -26,7 +26,7 @@ const assetDetails = {
     type: "Weapon",
     price: "2.5 STT",
     priceUsd: "$4,250",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=1200&h=800&fit=crop",
+    image: "/katana.png",
     rarity: "Legendary",
     game: "CyberStrike",
     description: "A legendary cybernetic katana forged in the neon foundries of Neo-Tokyo. This weapon combines ancient samurai craftsmanship with cutting-edge plasma technology.",
@@ -93,7 +93,7 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
 
     // Add to cart
     const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-    const existingItem = cart.find((item: any) => item.id === asset.id)
+    const existingItem = cart.find((item: { id: number }) => item.id === asset.id)
     
     if (existingItem) {
       toast.info('Item already in cart')

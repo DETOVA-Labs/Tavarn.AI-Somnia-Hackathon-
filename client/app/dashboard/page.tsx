@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Navigation from '@/components/Navigation'
 import BubbleAnimation from '@/components/BubbleAnimation'
+import ProfileDialog from '@/components/ProfileDialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -31,13 +32,24 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
-const userAssets = [
+interface Asset {
+  id: number
+  name: string
+  type: string
+  price: string
+  image: string
+  rarity: string
+  game: string
+  status: string
+}
+
+const userAssets: Asset[] = [
   {
     id: 1,
     name: "Cyber Katana X-7",
     type: "Weapon",
     price: "2.5 STT",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=800&h=600&fit=crop",
+    image: "/katana.png",
     rarity: "Legendary",
     game: "CyberStrike",
     status: "Listed",
@@ -47,7 +59,7 @@ const userAssets = [
     name: "Quantum Armor Set",
     type: "Armor",
     price: "3.2 STT",
-    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&h=600&fit=crop",
+    image: "/quantum armor suit.jpg",
     rarity: "Legendary",
     game: "QuantumWarriors",
     status: "Owned",
@@ -57,7 +69,7 @@ const userAssets = [
     name: "Lightning Strike Bow",
     type: "Weapon",
     price: "1.2 STT",
-    image: "https://images.unsplash.com/photo-1509396591411-549f5662ff5b?w=800&h=600&fit=crop",
+    image: "/Lightning Strike Bow.jpeg",
     rarity: "Rare",
     game: "ArcherLegends",
     status: "Owned",
@@ -122,6 +134,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [aiAutoPricing, setAiAutoPricing] = useState(true)
   const [walletSafetyScore] = useState(94) // This would come from API
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false)
 
   const handleAutoPricingToggle = (enabled: boolean) => {
     setAiAutoPricing(enabled)
@@ -175,7 +188,11 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex gap-3">
-              <Button variant="outline" className="neon-border">
+              <Button
+                variant="outline"
+                className="neon-border"
+                onClick={() => setProfileDialogOpen(true)}
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </Button>
@@ -483,6 +500,11 @@ export default function DashboardPage() {
           </CardHeader>
         </Card>
       </div>
+
+      <ProfileDialog
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+      />
     </div>
   )
 }
