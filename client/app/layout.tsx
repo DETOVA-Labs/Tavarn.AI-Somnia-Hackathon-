@@ -10,6 +10,7 @@ import ClientProvider from "@/components/ClientProvider";
 export const metadata: Metadata = {
   title: "Tavarn.AI - The Smartest Trader on Somnia",
   description: "AI-powered gaming marketplace where prices evolve with demand",
+    icons:'/logo.jpeg',
 };
 
 export default function RootLayout({
