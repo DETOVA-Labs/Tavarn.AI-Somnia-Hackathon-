@@ -1,9 +1,6 @@
 "use client"
 
 import { useState } from 'react'
-import Navigation from '@/components/Navigation'
-import BubbleAnimation from '@/components/BubbleAnimation'
-import WalletConnectDialog from '@/components/WalletConnectDialog'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,107 +14,29 @@ import { ShoppingCart, Heart, Share2, TrendingUp, Shield, Zap, Eye, Clock } from
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
-
-// Mock data - would come from API/database
-const assetDetails = {
-  1: {
-    id: 1,
-    name: "Cyber Katana X-7",
-    type: "Weapon",
-    price: "2.5 STT",
-    priceUsd: "$4,250",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=1200&h=800&fit=crop",
-    rarity: "Legendary",
-    game: "CyberStrike",
-    description: "A legendary cybernetic katana forged in the neon foundries of Neo-Tokyo. This weapon combines ancient samurai craftsmanship with cutting-edge plasma technology.",
-    stats: [
-      { name: "Damage", value: 95, max: 100 },
-      { name: "Speed", value: 88, max: 100 },
-      { name: "Range", value: 45, max: 100 },
-      { name: "Durability", value: 92, max: 100 },
-    ],
-    attributes: [
-      { trait: "Element", value: "Electric" },
-      { trait: "Attack Speed", value: "Fast" },
-      { trait: "Special Effect", value: "Lightning Strike" },
-      { trait: "Level Requirement", value: "45" },
-    ],
-    owner: {
-      name: "CyberNinja_99",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=cyberninja",
-      verified: true,
-    },
-    creator: {
-      name: "NeonForge Studios",
-      avatar: "https://api.dicebear.com/7.x/bottts/svg?seed=neonforge",
-      verified: true,
-    },
-    history: [
-      { event: "Listed", price: "2.5 STT", from: "CyberNinja_99", date: "2 hours ago" },
-      { event: "Sale", price: "2.2 STT", from: "Player123", to: "CyberNinja_99", date: "5 days ago" },
-      { event: "Minted", price: "1.5 STT", to: "Player123", date: "30 days ago" },
-    ],
-  },
-}
-
-const getRarityColor = (rarity: string) => {
-  switch (rarity) {
-    case "Mythic":
-      return "bg-gradient-to-r from-purple-500 to-pink-500"
-    case "Legendary":
-      return "bg-gradient-to-r from-yellow-500 to-orange-500"
-    case "Epic":
-      return "bg-gradient-to-r from-purple-400 to-blue-500"
-    case "Rare":
-      return "bg-gradient-to-r from-blue-400 to-cyan-500"
-    default:
-      return "bg-muted"
-  }
-}
+import {useAccount} from "wagmi";
+import { assetDetails, getRarityColor } from "@/lib/dummy-data";
+import { DemoAlert } from "@/components/ui/demo-alert";
 
 export default function AssetDetailPage({ params }: { params: { id: string } }) {
   const [isLiked, setIsLiked] = useState(false)
   const [walletDialogOpen, setWalletDialogOpen] = useState(false)
   const [offerDialogOpen, setOfferDialogOpen] = useState(false)
   const [offerAmount, setOfferAmount] = useState('')
-  const asset = assetDetails[1] // In real app, would fetch by params.id
-
+  const asset = assetDetails[1]
+const  {address,isConnected} = useAccount()
   const handleBuyNow = () => {
-    const walletAddress = localStorage.getItem('wallet_address')
-    
-    if (!walletAddress) {
+
+    if (!address) {
       toast.error('Please connect your wallet first')
       setWalletDialogOpen(true)
       return
     }
-
-    // Add to cart
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]')
-    const existingItem = cart.find((item: any) => item.id === asset.id)
-    
-    if (existingItem) {
-      toast.info('Item already in cart')
-    } else {
-      cart.push({
-        id: asset.id,
-        name: asset.name,
-        price: asset.price,
-        image: asset.image,
-        type: asset.type
-      })
-      localStorage.setItem('cart', JSON.stringify(cart))
-      
-      // Dispatch custom event for cart update
-      window.dispatchEvent(new Event('cartUpdated'))
-      
-      toast.success('Added to cart!')
-    }
   }
 
   const handleMakeOffer = () => {
-    const walletAddress = localStorage.getItem('wallet_address')
-    
-    if (!walletAddress) {
+
+    if (!address) {
       toast.error('Please connect your wallet first')
       setWalletDialogOpen(true)
       return
@@ -132,7 +51,6 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
       return
     }
 
-    // Simulate offer submission
     toast.success(`Offer of ${offerAmount} STT submitted!`)
     setOfferDialogOpen(false)
     setOfferAmount('')
@@ -144,10 +62,8 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="dark min-h-screen cyber-grid relative">
-      <BubbleAnimation />
-      <Navigation />
-      
       <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
+        <DemoAlert />
         {/* Breadcrumb */}
         <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-8">
           <Link href="/" className="hover:text-primary">Home</Link>
@@ -428,11 +344,6 @@ export default function AssetDetailPage({ params }: { params: { id: string } }) 
           </CardHeader>
         </Card>
       </div>
-
-      {/* Wallet Connect Dialog */}
-      <WalletConnectDialog open={walletDialogOpen} onOpenChange={setWalletDialogOpen} />
-
-      {/* Make Offer Dialog */}
       <Dialog open={offerDialogOpen} onOpenChange={setOfferDialogOpen}>
         <DialogContent className="sm:max-w-md glass-effect border-primary/20">
           <DialogHeader>

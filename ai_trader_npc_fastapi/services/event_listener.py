@@ -29,7 +29,6 @@ async def handle_event(event):
     demand_signals[item_address] = max(0, min(10, demand_signals[item_address]))
     demand_index = demand_signals[item_address]
 
-    # On-chain data
     item_details = await get_item_details(item_address)
     if not item_details:
         return
@@ -37,7 +36,6 @@ async def handle_event(event):
     current_price = item_details["price"]
     current_inventory = item_details["inventory"]
 
-    # AI suggestion
     new_price = await get_hybrid_price_suggestion(
         item_name=item_address,
         base_price=current_price,
@@ -65,17 +63,13 @@ async def start_event_listener():
             async for w3 in AsyncWeb3(WebSocketProvider(WSS_RPC_URL), modules={"eth": (AsyncEth,)}):
                 print("Connected to WebSocket provider!")
 
-                # Load contract ABI
                 with open("../abi/AITrader.json") as f:
                     contract_abi = json.load(f)
 
                 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)
-
-                # Create event filters
                 bought_filter = await contract.events.ItemBought.create_filter(from_block="latest")
                 sold_filter = await contract.events.ItemSold.create_filter(from_block="latest")
                 print("Event filters created.")
-                # Poll events
                 while True:
                     for event in await bought_filter.get_new_entries():
                         await handle_event(event)

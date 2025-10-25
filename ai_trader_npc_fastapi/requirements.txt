@@ -2,5 +2,6 @@ fastapi
 uvicorn
 web3
 python-dotenv
-openai
+google-generativeai
 eth_account
+gunicorn

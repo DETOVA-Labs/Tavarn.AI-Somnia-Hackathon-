@@ -23,9 +23,7 @@ export default function ProfileDialog({ open, onOpenChange }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  useEffect(() => {
-    // Check if user is logged in
-    const user = localStorage.getItem('user')
+  useEffect(() => {const user = localStorage.getItem('user')
     setIsLoggedIn(!!user)
   }, [open])
 

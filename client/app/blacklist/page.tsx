@@ -1,8 +1,6 @@
 "use client"
 
-import { useState } from 'react'
-import Navigation from '@/components/Navigation'
-import BubbleAnimation from '@/components/BubbleAnimation'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,41 +9,15 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { ShieldAlert, AlertTriangle, CheckCircle2, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
+import { Skeleton } from "@/components/ui/skeleton"
+import { BlacklistedUser } from '@/lib/types'
+import { getBlacklist, getBlacklistStats, submitBlacklistReport } from '@/lib/blacklist'
 
-const verifiedScams = [
-  {
-    id: 1,
-    address: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
-    reason: "Fake NFT minting - multiple reports of stolen assets",
-    reports: 47,
-    verified: true,
-    date: "2024-01-15"
-  },
-  {
-    id: 2,
-    address: "0x8a90CAb2b38dba80c64b7734e58Ee1dB38B8992e",
-    reason: "Phishing attack - impersonating official marketplace",
-    reports: 89,
-    verified: true,
-    date: "2024-01-10"
-  },
-  {
-    id: 3,
-    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-    reason: "Price manipulation - coordinated pump and dump",
-    reports: 23,
-    verified: true,
-    date: "2024-01-08"
-  },
-  {
-    id: 4,
-    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    reason: "Fake asset duplication - selling non-existent items",
-    reports: 156,
-    verified: true,
-    date: "2024-01-05"
-  },
-]
+const formatTimestamp = (timestamp: any) => {
+  if (!timestamp) return 'N/A';
+  const date = new Date(timestamp._seconds * 1000);
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+};
 
 export default function BlacklistPage() {
   const [formData, setFormData] = useState({
@@ -53,8 +25,32 @@ export default function BlacklistPage() {
     reason: '',
     evidence: ''
   })
+  const [blacklist, setBlacklist] = useState<BlacklistedUser[]>([])
+  const [stats, setStats] = useState({ scamsBlocked: 0, reportsThisMonth: 0, assetsProtected: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [blacklistData, statsData] = await Promise.all([
+          getBlacklist(),
+          getBlacklistStats()
+        ]);
+
+        setBlacklist(blacklistData);
+        setStats(statsData);
+      } catch (err:any) {
+          setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!formData.address || !formData.reason) {
@@ -62,21 +58,22 @@ export default function BlacklistPage() {
       return
     }
 
-    // TODO: Submit to backend API
-    toast.success('Report submitted successfully! Our AI will verify this report.')
-    
-    setFormData({
-      address: '',
-      reason: '',
-      evidence: ''
-    })
+    try {
+      await submitBlacklistReport(formData);
+      toast.success('Report submitted successfully! Our AI will verify this report.')
+      
+      setFormData({
+        address: '',
+        reason: '',
+        evidence: ''
+      })
+    } catch (error:any) {
+      toast.error(error.message || 'An unexpected error occurred.');
+    }
   }
 
   return (
     <div className="dark min-h-screen cyber-grid relative">
-      <BubbleAnimation />
-      <Navigation />
-      
       <div className="container mx-auto px-4 pt-24 pb-16">
         {/* Header */}
         <div className="text-center mb-12">
@@ -147,7 +144,7 @@ export default function BlacklistPage() {
                   </p>
                 </div>
 
-                <Button type="submit" className="w-full neon-border bg-primary/10 hover:bg-primary/20">
+                <Button type="submit" className="w-full neon-border bg-primary hover:bg-primary/20">
                   <ShieldAlert className="mr-2 h-4 w-4" />
                   Submit Report
                 </Button>
@@ -178,7 +175,7 @@ export default function BlacklistPage() {
                   <div>
                     <div className="text-sm text-muted-foreground">Scams Blocked</div>
                     <div className="text-2xl font-bold text-primary" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-                      1,247
+                      {loading ? <Skeleton className="h-8 w-24" /> : stats.scamsBlocked}
                     </div>
                   </div>
                   <ShieldAlert className="h-8 w-8 text-primary" />
@@ -188,7 +185,7 @@ export default function BlacklistPage() {
                   <div>
                     <div className="text-sm text-muted-foreground">Reports This Month</div>
                     <div className="text-2xl font-bold text-secondary" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-                      89
+                      {loading ? <Skeleton className="h-8 w-16" /> : stats.reportsThisMonth}
                     </div>
                   </div>
                   <AlertTriangle className="h-8 w-8 text-secondary" />
@@ -198,7 +195,7 @@ export default function BlacklistPage() {
                   <div>
                     <div className="text-sm text-muted-foreground">Assets Protected</div>
                     <div className="text-2xl font-bold text-primary" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-                      $2.8M
+                      {loading ? <Skeleton className="h-8 w-20" /> : stats.assetsProtected}
                     </div>
                   </div>
                   <CheckCircle2 className="h-8 w-8 text-primary" />
@@ -234,8 +231,7 @@ export default function BlacklistPage() {
           </div>
         </div>
 
-        {/* Verified Scams List */}
-        <Card className="glass-effect">
+        <Card className="glass-effect w-fit">
           <CardHeader>
             <CardTitle className="text-2xl" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
               Verified Scam Addresses
@@ -245,43 +241,67 @@ export default function BlacklistPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {verifiedScams.map((scam) => (
-                <div 
-                  key={scam.id} 
-                  className="glass-effect p-4 rounded-lg hover:neon-border transition-all"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <code className="px-3 py-1 bg-muted rounded text-sm font-mono">
-                          {scam.address}
-                        </code>
-                        <Badge variant="destructive" className="flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          Verified
-                        </Badge>
-                        <Badge variant="secondary">
-                          {scam.reports} reports
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground">
-                        {scam.reason}
-                      </p>
-                      
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>Reported: {scam.date}</span>
-                        <Button variant="ghost" size="sm" className="h-auto p-0 text-primary hover:text-primary/80">
-                          View Details
-                          <ExternalLink className="ml-1 h-3 w-3" />
-                        </Button>
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="glass-effect p-4 rounded-lg">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Skeleton className="h-6 w-48" />
+                      <Skeleton className="h-6 w-20" />
+                      <Skeleton className="h-6 w-24" />
+                    </div>
+                    <Skeleton className="h-4 w-full mt-2" />
+                    <Skeleton className="h-4 w-3/4 mt-1" />
+                    <div className="flex items-center gap-4 mt-3">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : error ? (
+              <p className="text-destructive">Error: {error}</p>
+            ) : (
+              <div className="space-y-4 w-fit">
+                {blacklist.map((user) => (
+                  <div 
+                    key={user.id} 
+                    className="glass-effect p-4 rounded-lg hover:neon-border transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
+                          <code className="px-3 py-1 bg-muted rounded  text-sm font-mono">
+                            {user.address}
+                          </code>
+                          <Badge variant="destructive" className="flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Verified
+                          </Badge>
+                          <Badge variant="secondary">
+                            {user.reports} reports
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground">
+                          {user.blacklist_reason}
+                        </p>
+                        
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Reported: {formatTimestamp(user.created_at)}</span>
+                            {user.link_to_evidence && (
+                            <a href={user.link_to_evidence} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
+                                View Evidence
+                                <ExternalLink className="ml-1 h-3 w-3 inline" />
+                            </a>
+                            )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

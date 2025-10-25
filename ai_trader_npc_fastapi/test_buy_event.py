@@ -20,8 +20,8 @@ def trigger_buy_event():
     RPC_URL = os.getenv('RPC_URL')
     print(f"Using RPC_URL: {RPC_URL}")
     CONTRACT_ADDRESS = os.getenv('CONTRACT_ADDRESS')
-    USER_PRIVATE_KEY = os.getenv('USER_PRIVATE_KEY')
-    ITEM_ADDRESS_TO_BUY = os.getenv('TEST_ITEM_ADDRESS')
+    USER_PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+    ITEM_ADDRESS_TO_BUY = os.getenv('NFT_ADDRESS')
 
     if not all([RPC_URL, CONTRACT_ADDRESS, USER_PRIVATE_KEY, ITEM_ADDRESS_TO_BUY]):
         print('Error: Please ensure RPC_URL, CONTRACT_ADDRESS, USER_PRIVATE_KEY, and TEST_ITEM_ADDRESS are set in your .env file.')

@@ -2,84 +2,22 @@
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Flame, ShoppingCart, Eye } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-
-const featuredAssets = [
-  {
-    id: 1,
-    name: "Cyber Katana X-7",
-    type: "Weapon",
-    price: "2.5 STT",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=800&h=600&fit=crop",
-    rarity: "Legendary",
-    game: "CyberStrike",
-  },
-  {
-    id: 2,
-    name: "Neon Dragon Skin",
-    type: "Skin",
-    price: "1.8 STT",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&h=600&fit=crop",
-    rarity: "Epic",
-    game: "DragonVerse",
-  },
-  {
-    id: 3,
-    name: "Quantum Armor Set",
-    type: "Armor",
-    price: "3.2 STT",
-    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&h=600&fit=crop",
-    rarity: "Legendary",
-    game: "QuantumWarriors",
-  },
-  {
-    id: 4,
-    name: "Plasma Blaster Pro",
-    type: "Weapon",
-    price: "1.5 STT",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop",
-    rarity: "Rare",
-    game: "SpaceRaiders",
-  },
-  {
-    id: 5,
-    name: "Holographic Phoenix",
-    type: "NFT",
-    price: "4.0 STT",
-    image: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=800&h=600&fit=crop",
-    rarity: "Mythic",
-    game: "MetaRealms",
-  },
-  {
-    id: 6,
-    name: "Stealth Assassin Gear",
-    type: "Outfit",
-    price: "2.0 STT",
-    image: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&h=600&fit=crop",
-    rarity: "Epic",
-    game: "ShadowOps",
-  },
-]
-
-const getRarityColor = (rarity: string) => {
-  switch (rarity) {
-    case "Mythic":
-      return "bg-gradient-to-r from-purple-500 to-pink-500"
-    case "Legendary":
-      return "bg-gradient-to-r from-yellow-500 to-orange-500"
-    case "Epic":
-      return "bg-gradient-to-r from-purple-400 to-blue-500"
-    case "Rare":
-      return "bg-gradient-to-r from-blue-400 to-cyan-500"
-    default:
-      return "bg-muted"
-  }
-}
+import { useAssets } from '@/hooks/useAssets'
+import { useBuyItem } from '@/hooks/useBuyItem';
 
 export default function FeaturedAssets() {
+    const { assets } = useAssets();
+    const { buyItem, isPending } = useBuyItem();
+
+    const handleQuickBuy = (e: React.MouseEvent, assetId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        buyItem({ item: assetId as `0x${string}`, qty: 1 });
+    };
+
   return (
     <section className="py-24 relative">
       <div className="container mx-auto px-4">
@@ -97,7 +35,7 @@ export default function FeaturedAssets() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredAssets.map((asset) => (
+          {assets.map((asset) => (
             <Link href={`/asset/${asset.id}`} key={asset.id}>
               <Card className="group glass-effect hover:neon-border transition-all duration-300 overflow-hidden cursor-pointer">
                 <CardHeader className="p-0 relative overflow-hidden">
@@ -109,12 +47,6 @@ export default function FeaturedAssets() {
                       className="object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent"></div>
-                    <Badge className={`absolute top-4 right-4 ${getRarityColor(asset.rarity)} border-none`}>
-                      {asset.rarity}
-                    </Badge>
-                    <Badge variant="secondary" className="absolute top-4 left-4">
-                      {asset.type}
-                    </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6 space-y-3">
@@ -122,7 +54,6 @@ export default function FeaturedAssets() {
                     <h3 className="text-lg md:text-xl font-bold mb-1 truncate" style={{ fontFamily: 'Rajdhani, sans-serif' }}>
                       {asset.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground truncate">{asset.game}</p>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
@@ -138,9 +69,13 @@ export default function FeaturedAssets() {
                   </div>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
-                  <Button className="w-full neon-border bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+                  <Button 
+                    className="w-full neon-border bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+                    onClick={(e) => handleQuickBuy(e, asset.id)}
+                    disabled={isPending}
+                  >
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Quick Buy
+                    {isPending ? 'Buying...' : 'Quick Buy'}
                   </Button>
                 </CardFooter>
               </Card>

@@ -13,6 +13,7 @@
 /* Updated: 2025-10-19T17:43:07.361Z */
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+@import "@rainbow-me/rainbowkit/styles.css";
 /* @import "tw-animate-css"; */
 
 @custom-variant dark (&:is(.dark *));

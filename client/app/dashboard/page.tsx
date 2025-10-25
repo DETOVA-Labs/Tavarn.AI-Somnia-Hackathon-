@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import Navigation from '@/components/Navigation'
-import BubbleAnimation from '@/components/BubbleAnimation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -25,103 +23,19 @@ import {
   ArrowDownRight,
   ShieldCheck,
   Sparkles,
-  Zap
+  Zap,
+  ShieldAlert
 } from 'lucide-react'
+import { DemoAlert } from "@/components/ui/demo-alert";
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
-
-const userAssets = [
-  {
-    id: 1,
-    name: "Cyber Katana X-7",
-    type: "Weapon",
-    price: "2.5 STT",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=800&h=600&fit=crop",
-    rarity: "Legendary",
-    game: "CyberStrike",
-    status: "Listed",
-  },
-  {
-    id: 3,
-    name: "Quantum Armor Set",
-    type: "Armor",
-    price: "3.2 STT",
-    image: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&h=600&fit=crop",
-    rarity: "Legendary",
-    game: "QuantumWarriors",
-    status: "Owned",
-  },
-  {
-    id: 7,
-    name: "Lightning Strike Bow",
-    type: "Weapon",
-    price: "1.2 STT",
-    image: "https://images.unsplash.com/photo-1509396591411-549f5662ff5b?w=800&h=600&fit=crop",
-    rarity: "Rare",
-    game: "ArcherLegends",
-    status: "Owned",
-  },
-]
-
-const salesHistory = [
-  {
-    id: 1,
-    asset: "Neon Dragon Skin",
-    type: "Sold",
-    price: "1.8 STT",
-    buyer: "Player_789",
-    date: "2 days ago",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    asset: "Cyber Katana X-7",
-    type: "Bought",
-    price: "2.2 STT",
-    seller: "Player123",
-    date: "5 days ago",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    asset: "Plasma Blaster Pro",
-    type: "Sold",
-    price: "1.5 STT",
-    buyer: "GamerX",
-    date: "1 week ago",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    asset: "Quantum Armor Set",
-    type: "Bought",
-    price: "3.0 STT",
-    seller: "ArmorKing",
-    date: "2 weeks ago",
-    status: "Completed",
-  },
-]
-
-const getRarityColor = (rarity: string) => {
-  switch (rarity) {
-    case "Mythic":
-      return "bg-gradient-to-r from-purple-500 to-pink-500"
-    case "Legendary":
-      return "bg-gradient-to-r from-yellow-500 to-orange-500"
-    case "Epic":
-      return "bg-gradient-to-r from-purple-400 to-blue-500"
-    case "Rare":
-      return "bg-gradient-to-r from-blue-400 to-cyan-500"
-    default:
-      return "bg-muted"
-  }
-}
+import { getRarityColor, salesHistory, userAssets } from "@/lib/dummy-data";
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
   const [aiAutoPricing, setAiAutoPricing] = useState(true)
-  const [walletSafetyScore] = useState(94) // This would come from API
+  const [walletSafetyScore] = useState(94)
 
   const handleAutoPricingToggle = (enabled: boolean) => {
     setAiAutoPricing(enabled)
@@ -144,11 +58,9 @@ export default function DashboardPage() {
 
   return (
     <div className="dark min-h-screen cyber-grid relative">
-      <BubbleAnimation />
-      <Navigation />
-      
       <div className="container mx-auto px-4 pt-24 pb-16">
-        {/* Profile Header */}
+        <DemoAlert />
+
         <div className="glass-effect rounded-lg p-8 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px]"></div>
           

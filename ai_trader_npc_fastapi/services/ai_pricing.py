@@ -1,8 +1,8 @@
 import json
-from openai import OpenAI
-from core.config import OPENAI_API_KEY
+import google.generativeai as genai
+from core.config import GEMINI_API_KEY
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
 
 def calculate_price_deterministically(base_price, demand_factor, supply_factor):
     """
@@ -10,25 +10,22 @@ def calculate_price_deterministically(base_price, demand_factor, supply_factor):
     This function is fast, predictable, and controllable.
     """
     # --- Tunable Weights ---
-    # These can be adjusted to change the trader's behavior.
-    demand_weight = 0.05  # 5% price change per point of demand.
-    supply_weight = 0.04  # 4% price change per point of supply.
+    demand_weight = 0.05
+    supply_weight = 0.04
 
-    # --- Pricing Formula ---
     demand_adjustment = 1.0 + (demand_factor * demand_weight)
     # We use a negative supply_factor to represent supply pressure
     supply_adjustment = 1.0 - (supply_factor * supply_weight)
-
     new_price = base_price * demand_adjustment * supply_adjustment
-    
-    # Ensure price is at least 1
     return max(1, int(new_price))
 
 
 async def get_ai_market_factors(item_name, demand_index, supply):
     """
-    Uses the LLM to analyze market conditions and return structured factors.
+    the LLM to analyze market conditions and return structured factors.
     """
+    model = genai.GenerativeModel('models/gemini-flash-latest')
+
     system_prompt = (
         "You are a master trader in a fantasy world. Your goal is to analyze market data "
         "and provide key factors for a pricing model. Respond only with a valid JSON object."
@@ -44,15 +41,11 @@ async def get_ai_market_factors(item_name, demand_index, supply):
     )
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"}
+        response = await model.generate_content_async(
+            [system_prompt, user_prompt],
+            generation_config={"response_mime_type": "application/json"}
         )
-        factors = json.loads(response.choices[0].message.content)
+        factors = json.loads(response.text)
         print(f"AI market analysis for {item_name}: {factors}")
         return factors
         
@@ -63,18 +56,15 @@ async def get_ai_market_factors(item_name, demand_index, supply):
 
 async def get_hybrid_price_suggestion(item_name, base_price, demand_index, supply):
     """
-    Orchestrates the hybrid pricing model.
+    Orchestrates our hybrid pricing model.
     1. Gets market factors from the AI.
     2. Calculates the final price using a deterministic formula.
     """
-    # Step 1: Get market analysis from the LLM
     factors = await get_ai_market_factors(item_name, demand_index, supply)
-    
     if not factors or 'demand_factor' not in factors or 'supply_factor' not in factors:
         print("Could not retrieve valid market factors from AI. Aborting price change.")
         return None
-        
-    # Step 2: Calculate the final price deterministically
+
     new_price = calculate_price_deterministically(
         base_price=base_price,
         demand_factor=factors['demand_factor'],
