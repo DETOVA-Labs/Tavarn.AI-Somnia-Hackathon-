@@ -9,7 +9,7 @@ w3 = AsyncWeb3(
     modules={"eth": (AsyncEth,)}
 )
 
-with open("../abi/AITrader.json") as f:
+with open("abi/AITrader.json") as f:
     CONTRACT_ABI = json.load(f)
 async def update_price(item_address, new_price):
     """

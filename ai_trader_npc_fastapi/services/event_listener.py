@@ -63,7 +63,7 @@ async def start_event_listener():
             async for w3 in AsyncWeb3(WebSocketProvider(WSS_RPC_URL), modules={"eth": (AsyncEth,)}):
                 print("Connected to WebSocket provider!")
 
-                with open("../abi/AITrader.json") as f:
+                with open("abi/AITrader.json") as f:
                     contract_abi = json.load(f)
 
                 contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=contract_abi)

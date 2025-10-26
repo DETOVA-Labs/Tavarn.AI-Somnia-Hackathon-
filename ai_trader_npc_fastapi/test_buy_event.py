@@ -44,7 +44,7 @@ def trigger_buy_event():
 
     # Load contract ABI
     try:
-        with open('../abi/AITrader.json') as f:
+        with open('abi/AITrader.json') as f:
             contract_abi = json.load(f)
     except FileNotFoundError:
         print("Error: Could not find 'abi/AITrader.json'. Make sure you are running this script from the project root directory.")
