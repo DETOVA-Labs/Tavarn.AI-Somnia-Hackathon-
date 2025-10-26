@@ -13,6 +13,7 @@ docs/
 # Dotenv file
 .env
 PRODUCT.md
+import.env
 ai_trader_npc_fastapi/GEMINI.md
 
 ai_trader_npc_fastapi/test_buy_event.py
