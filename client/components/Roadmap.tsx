@@ -15,13 +15,14 @@ export function Roadmap() {
               <li>Frontend Scaffolding with Next.js and Tailwind CSS</li>
               <li>Core Marketplace UI (Buy/Sell functionality)</li>
               <li>Initial AI Price Model (V1)</li>
+                <li>Real-time Price Updates with Websockets</li>
+
             </ul>
           </div>
           <div>
             <h2 className="text-2xl font-semibold mb-2">Phase 2: Feature Expansion & UX Improvements (In Progress)</h2>
             <ul className="list-disc list-inside text-muted-foreground space-y-2">
               <li>User Profile Pages with Inventory Display</li>
-              <li>Real-time Price Updates with Websockets</li>
               <li>Expanded Asset Support (More game items)</li>
               <li>UI/UX Polish and Mobile Responsiveness</li>
             </ul>
